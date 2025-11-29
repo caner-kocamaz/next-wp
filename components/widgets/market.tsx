@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,80 +34,44 @@ function formatChange(change: number, isPercent: boolean = false): string {
   return `${prefix}${change.toFixed(2)}`;
 }
 
+// Mock market data
+const mockMarketData: MarketWidgetData = {
+  indices: [
+    {
+      symbol: "SPY",
+      name: "S&P 500",
+      price: 6859.5,
+      change: 8.45,
+      changePercent: 0.12,
+    },
+    {
+      symbol: "QQQ",
+      name: "NASDAQ",
+      price: 25482,
+      change: 171.75,
+      changePercent: 0.68,
+    },
+  ],
+  crypto: [
+    {
+      symbol: "BTC",
+      name: "Bitcoin",
+      price: 90505.05,
+      change: -880.11,
+      changePercent: -0.96,
+    },
+    {
+      symbol: "VIX",
+      name: "VIX",
+      price: 16.35,
+      change: -0.84,
+      changePercent: -4.89,
+    },
+  ],
+};
+
 export function MarketWidget() {
-  const [marketData, setMarketData] = useState<MarketWidgetData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchMarketData() {
-      try {
-        const response = await fetch("/api/market");
-        if (!response.ok) {
-          throw new Error("Failed to fetch market data");
-        }
-        const data = await response.json();
-        setMarketData(data);
-      } catch (err) {
-        setError("Unable to load market data");
-        // Set fallback data
-        setMarketData({
-          indices: [
-            {
-              symbol: "SPY",
-              name: "S&P Futu...",
-              price: 6859.5,
-              change: 8.45,
-              changePercent: 0.12,
-            },
-            {
-              symbol: "QQQ",
-              name: "NASDAQ ...",
-              price: 25482,
-              change: 171.75,
-              changePercent: 0.68,
-            },
-          ],
-          crypto: [
-            {
-              symbol: "BTC",
-              name: "Bitcoin",
-              price: 90505.05,
-              change: -880.11,
-              changePercent: -0.96,
-            },
-            {
-              symbol: "VIX",
-              name: "VIX",
-              price: 16.35,
-              change: -0.84,
-              changePercent: -4.89,
-            },
-          ],
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMarketData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="bg-card rounded-xl p-4 border border-border animate-pulse">
-        <div className="h-5 bg-muted rounded w-32 mb-4" />
-        <div className="space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-10 bg-muted rounded" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!marketData) return null;
-
+  const marketData = mockMarketData;
   const allItems = [...marketData.indices, ...marketData.crypto];
 
   return (
@@ -163,12 +126,6 @@ export function MarketWidget() {
           </div>
         ))}
       </div>
-
-      {error && (
-        <p className="text-xs text-muted-foreground mt-2 text-center">
-          {error}
-        </p>
-      )}
     </div>
   );
 }

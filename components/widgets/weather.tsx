@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Cloud, Sun, CloudRain, CloudSnow, Wind, Droplets } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +21,9 @@ interface ForecastDay {
 
 const weatherIcons: Record<string, React.ElementType> = {
   clear: Sun,
+  sunny: Sun,
   clouds: Cloud,
+  cloudy: Cloud,
   rain: CloudRain,
   snow: CloudSnow,
   default: Cloud,
@@ -45,61 +46,24 @@ function getWeatherIcon(condition: string) {
   return weatherIcons.default;
 }
 
+// Mock weather data
+const mockWeather: WeatherData = {
+  location: "San Francisco",
+  temperature: 62,
+  condition: "Partly Cloudy",
+  humidity: 65,
+  windSpeed: 12,
+  forecast: [
+    { day: "Fri", high: 65, low: 52, condition: "sunny" },
+    { day: "Sat", high: 68, low: 54, condition: "cloudy" },
+    { day: "Sun", high: 63, low: 51, condition: "rain" },
+    { day: "Mon", high: 60, low: 48, condition: "cloudy" },
+    { day: "Tue", high: 62, low: 50, condition: "sunny" },
+  ],
+};
+
 export function WeatherWidget() {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchWeather() {
-      try {
-        const response = await fetch("/api/weather");
-        if (!response.ok) {
-          throw new Error("Failed to fetch weather");
-        }
-        const data = await response.json();
-        setWeather(data);
-      } catch (err) {
-        setError("Unable to load weather");
-        // Set fallback data
-        setWeather({
-          location: "San Francisco",
-          temperature: 62,
-          condition: "Partly Cloudy",
-          humidity: 65,
-          windSpeed: 12,
-          forecast: [
-            { day: "Fri", high: 65, low: 52, condition: "sunny" },
-            { day: "Sat", high: 68, low: 54, condition: "cloudy" },
-            { day: "Sun", high: 63, low: 51, condition: "rain" },
-            { day: "Mon", high: 60, low: 48, condition: "cloudy" },
-            { day: "Tue", high: 62, low: 50, condition: "sunny" },
-          ],
-        });
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchWeather();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="bg-card rounded-xl p-4 border border-border animate-pulse">
-        <div className="h-6 bg-muted rounded w-24 mb-4" />
-        <div className="h-12 bg-muted rounded w-32 mb-4" />
-        <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-16 bg-muted rounded flex-1" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (!weather) return null;
-
+  const weather = mockWeather;
   const WeatherIcon = getWeatherIcon(weather.condition);
 
   return (
@@ -151,12 +115,6 @@ export function WeatherWidget() {
           );
         })}
       </div>
-
-      {error && (
-        <p className="text-xs text-muted-foreground mt-2 text-center">
-          {error}
-        </p>
-      )}
     </div>
   );
 }
