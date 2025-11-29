@@ -17,15 +17,15 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-import { Section, Container, Prose } from "@/components/craft";
 import { PostCard } from "@/components/posts/post-card";
 import { FilterPosts } from "@/components/posts/filter";
 import { SearchInput } from "@/components/posts/search-input";
+import { Newspaper } from "lucide-react";
 
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blog Posts",
+  title: "All Posts | Discover",
   description: "Browse all our blog posts",
 };
 
@@ -73,20 +73,24 @@ export default async function Page({
   };
 
   return (
-    <Section>
-      <Container>
+    <div className="min-h-screen">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
-          <Prose>
-            <h2>All Posts</h2>
-            <p className="text-muted-foreground">
-              {total} {total === 1 ? "post" : "posts"} found
-              {search && " matching your search"}
-            </p>
-          </Prose>
+          {/* Header */}
+          <div className="flex items-center gap-3 pb-6 border-b border-border">
+            <Newspaper className="h-8 w-8 text-primary" />
+            <div>
+              <h1 className="text-2xl font-bold">All Posts</h1>
+              <p className="text-muted-foreground text-sm">
+                {total} {total === 1 ? "post" : "posts"} found
+                {search && " matching your search"}
+              </p>
+            </div>
+          </div>
 
-          <div className="space-y-4">
+          {/* Search and Filters */}
+          <div className="space-y-4 bg-card rounded-xl border border-border p-4">
             <SearchInput defaultValue={search} />
-
             <FilterPosts
               authors={authors}
               tags={tags}
@@ -97,18 +101,27 @@ export default async function Page({
             />
           </div>
 
+          {/* Posts Grid */}
           {posts.length > 0 ? (
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map((post) => (
                 <PostCard key={post.id} post={post} />
               ))}
             </div>
           ) : (
-            <div className="h-24 w-full border rounded-lg bg-accent/25 flex items-center justify-center">
-              <p>No posts found</p>
+            <div className="flex items-center justify-center min-h-[200px] bg-card rounded-xl border border-border">
+              <div className="text-center">
+                <p className="text-muted-foreground">No posts found</p>
+                {search && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Try adjusting your search or filters
+                  </p>
+                )}
+              </div>
             </div>
           )}
 
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center py-8">
               <Pagination>
@@ -123,7 +136,6 @@ export default async function Page({
 
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
                     .filter((pageNum) => {
-                      // Show current page, first page, last page, and 2 pages around current
                       return (
                         pageNum === 1 ||
                         pageNum === totalPages ||
@@ -158,7 +170,7 @@ export default async function Page({
             </div>
           )}
         </div>
-      </Container>
-    </Section>
+      </div>
+    </div>
   );
 }

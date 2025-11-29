@@ -1,146 +1,152 @@
-// Craft Imports
-import { Section, Container, Prose } from "@/components/craft";
+import { Suspense } from "react";
 
-// Next.js Imports
-import Link from "next/link";
+// Layout Components
+import { DiscoverLayout } from "@/components/layout/discover-layout";
+import { TabNav } from "@/components/layout/tab-nav";
 
-// Icons
-import { File, Pen, Tag, Diamond, User, Folder } from "lucide-react";
-import { WordPressIcon } from "@/components/icons/wordpress";
-import { NextJsIcon } from "@/components/icons/nextjs";
+// Widget Components
+import { WeatherWidget } from "@/components/widgets/weather";
+import { MarketWidget } from "@/components/widgets/market";
+import { TrendingWidget } from "@/components/widgets/trending";
 
-// This page is using the craft.tsx component and design system
-export default function Home() {
+// Post Components
+import { HeroCard } from "@/components/posts/hero-card";
+import { CompactCard } from "@/components/posts/compact-card";
+import { DiscoverMore } from "@/components/posts/scroll-card";
+
+// WordPress
+import { getPostsPaginated } from "@/lib/wordpress";
+
+// Types
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Discover | News & Insights",
+  description: "Stay informed with the latest news and insights powered by WordPress and Next.js",
+};
+
+export const dynamic = "auto";
+export const revalidate = 600;
+
+// Loading skeleton for widgets
+function WidgetSkeleton() {
   return (
-    <Section>
-      <Container>
-        <ToDelete />
-      </Container>
-    </Section>
+    <div className="bg-card rounded-xl p-4 border border-border animate-pulse">
+      <div className="h-5 bg-muted rounded w-32 mb-4" />
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-10 bg-muted rounded" />
+        ))}
+      </div>
+    </div>
   );
 }
 
-// This is just some example TSX
-const ToDelete = () => {
+// Loading skeleton for cards
+function CardSkeleton() {
   return (
-    <main className="space-y-6">
-      <Prose>
-        <h1>Headless WordPress built with the Next.js</h1>
-
-        <p>
-          This is <a href="https://github.com/9d8dev/next-wp">next-wp</a>,
-          created as a way to build WordPress sites with Next.js at rapid speed.
-          This starter is designed with{" "}
-          <a href="https://ui.shadcn.com">shadcn/ui</a>,{" "}
-          <a href="https://craft-ds.com">craft-ds</a>, and Tailwind CSS. Use{" "}
-          <a href="https://components.work">brijr/components</a> to build your
-          site with prebuilt components. The data fetching and typesafety is
-          handled in <code>lib/wordpress.ts</code> and{" "}
-          <code>lib/wordpress.d.ts</code>.
-        </p>
-      </Prose>
-
-      <div className="flex justify-between items-center gap-4">
-        {/* Vercel Clone Starter */}
-        <div className="flex items-center gap-3">
-          <a
-            className="h-auto block"
-            href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2F9d8dev%2Fnext-wp&env=WORDPRESS_URL,WORDPRESS_HOSTNAME&envDescription=Add%20WordPress%20URL%20with%20Rest%20API%20enabled%20(ie.%20https%3A%2F%2Fwp.example.com)%20abd%20the%20hostname%20for%20Image%20rendering%20in%20Next%20JS%20(ie.%20wp.example.com)&project-name=next-wp&repository-name=next-wp&demo-title=Next%20JS%20and%20WordPress%20Starter&demo-url=https%3A%2F%2Fwp.9d8.dev"
-          >
-            {/* eslint-disable-next-line */}
-            <img
-              className="not-prose my-4"
-              src="https://vercel.com/button"
-              alt="Deploy with Vercel"
-              width={105}
-              height={32.62}
-            />
-          </a>
-          <p className="text-sm! sr-only sm:not-sr-only text-muted-foreground">
-            Deploy with Vercel in seconds.
-          </p>
-        </div>
-
-        <div className="flex gap-2 items-center">
-          <WordPressIcon className="text-foreground" width={32} height={32} />
-          <NextJsIcon className="text-foreground" width={32} height={32} />
-        </div>
+    <div className="bg-card rounded-xl border border-border overflow-hidden animate-pulse">
+      <div className="aspect-video bg-muted" />
+      <div className="p-4 space-y-2">
+        <div className="h-4 bg-muted rounded w-3/4" />
+        <div className="h-3 bg-muted rounded w-1/2" />
       </div>
-
-      <div className="grid md:grid-cols-3 gap-4 mt-6">
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/posts"
-        >
-          <Pen size={32} />
-          <span>
-            Posts{" "}
-            <span className="block text-sm text-muted-foreground">
-              All posts from your WordPress
-            </span>
-          </span>
-        </Link>
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/pages"
-        >
-          <File size={32} />
-          <span>
-            Pages{" "}
-            <span className="block text-sm text-muted-foreground">
-              Custom pages from your WordPress
-            </span>
-          </span>
-        </Link>
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/posts/authors"
-        >
-          <User size={32} />
-          <span>
-            Authors{" "}
-            <span className="block text-sm text-muted-foreground">
-              List of the authors from your WordPress
-            </span>
-          </span>
-        </Link>
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/posts/tags"
-        >
-          <Tag size={32} />
-          <span>
-            Tags{" "}
-            <span className="block text-sm text-muted-foreground">
-              Content by tags from your WordPress
-            </span>
-          </span>
-        </Link>
-        <Link
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="/posts/categories"
-        >
-          <Diamond size={32} />
-          <span>
-            Categories{" "}
-            <span className="block text-sm text-muted-foreground">
-              Categories from your WordPress
-            </span>
-          </span>
-        </Link>
-        <a
-          className="border h-48 bg-accent/50 rounded-lg p-4 flex flex-col justify-between hover:scale-[1.02] transition-all"
-          href="https://github.com/9d8dev/next-wp/blob/main/README.md"
-        >
-          <Folder size={32} />
-          <span>
-            Documentation{" "}
-            <span className="block text-sm text-muted-foreground">
-              How to use `next-wp`
-            </span>
-          </span>
-        </a>
-      </div>
-    </main>
+    </div>
   );
-};
+}
+
+// Sidebar component with all widgets
+function Sidebar() {
+  return (
+    <div className="space-y-6">
+      <Suspense fallback={<WidgetSkeleton />}>
+        <WeatherWidget />
+      </Suspense>
+      <Suspense fallback={<WidgetSkeleton />}>
+        <MarketWidget />
+      </Suspense>
+      <Suspense fallback={<WidgetSkeleton />}>
+        <TrendingWidget />
+      </Suspense>
+    </div>
+  );
+}
+
+export default async function Home() {
+  // Fetch posts for the home page
+  const { data: posts } = await getPostsPaginated(1, 10);
+
+  // Split posts: first one is hero, next 3 are compact grid, rest are discover more
+  const heroPost = posts[0];
+  const gridPosts = posts.slice(1, 4);
+  const morePosts = posts.slice(4);
+
+  // If no posts, show empty state
+  if (posts.length === 0) {
+    return (
+      <DiscoverLayout sidebar={<Sidebar />}>
+        <Suspense fallback={null}>
+          <TabNav />
+        </Suspense>
+        <div className="flex items-center justify-center min-h-[400px] bg-card rounded-xl border border-border">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold mb-2">No posts yet</h2>
+            <p className="text-muted-foreground">
+              Connect your WordPress site to see content here.
+            </p>
+          </div>
+        </div>
+      </DiscoverLayout>
+    );
+  }
+
+  return (
+    <DiscoverLayout sidebar={<Sidebar />}>
+      <Suspense fallback={null}>
+        <TabNav />
+      </Suspense>
+
+      {/* Hero Post */}
+      {heroPost && (
+        <section className="mb-6">
+          <Suspense
+            fallback={
+              <div className="bg-card rounded-xl border border-border overflow-hidden animate-pulse">
+                <div className="grid md:grid-cols-2">
+                  <div className="p-6 space-y-4">
+                    <div className="h-6 bg-muted rounded w-3/4" />
+                    <div className="h-4 bg-muted rounded w-full" />
+                    <div className="h-4 bg-muted rounded w-2/3" />
+                  </div>
+                  <div className="aspect-video bg-muted" />
+                </div>
+              </div>
+            }
+          >
+            <HeroCard post={heroPost} />
+          </Suspense>
+        </section>
+      )}
+
+      {/* Compact Cards Grid */}
+      {gridPosts.length > 0 && (
+        <section className="mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {gridPosts.map((post) => (
+              <Suspense key={post.id} fallback={<CardSkeleton />}>
+                <CompactCard post={post} />
+              </Suspense>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Discover More Section */}
+      {morePosts.length > 0 && (
+        <Suspense fallback={null}>
+          <DiscoverMore posts={morePosts} />
+        </Suspense>
+      )}
+    </DiscoverLayout>
+  );
+}
